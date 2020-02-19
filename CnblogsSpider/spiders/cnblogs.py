@@ -4,8 +4,8 @@ import scrapy
 
 class CnblogsSpider(scrapy.Spider):
     name = 'cnblogs'
-    allowed_domains = ['new.cnblogs.com']
-    start_urls = ['http://new.cnblogs.com/']
+    allowed_domains = ['www.cnblogs.com/news/']
+    start_urls = ['http://www.cnblogs.com/news/']
 
     def parse(self, response):
         pass
