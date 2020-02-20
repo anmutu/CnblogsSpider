@@ -28,4 +28,10 @@ class CnblogsSpider(scrapy.Spider):
 
 
     def parse_detail(self, response):
+        title = response.css('#news_title a::text').extract_first("")
+        publish_time = response.css('#news_info .time::text').extract_first("")
+        content = response.css('#news_content').extract("")[0]
+        tag_list = response.css('.news_tags a::text').extract()
+
+
         pass
