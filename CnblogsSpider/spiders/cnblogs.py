@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-from urllib import parse
+from urllib import parse, response
 import json
+
 
 import scrapy
 from scrapy import Request
 import requests
 import re
+from CnblogsSpider.items import CnblogsspiderItem
+from CnblogsSpider.util import common
 
 
 
@@ -38,6 +41,7 @@ class CnblogsSpider(scrapy.Spider):
         """
         获取详情信息的函数
         """
+        article_item = CnblogsspiderItem
         title = response.css('#news_title a::text').extract_first("")
         publish_time = response.css('#news_info .time::text').extract_first("")
         match_re = re.match(".*?(\d+.*)", publish_time)
@@ -45,12 +49,24 @@ class CnblogsSpider(scrapy.Spider):
             publish_time = match_re.group(1)
         content = response.css('#news_content').extract("")[0]
         tag_list = response.css('.news_tags a::text').extract()
+        tags = ",".join(tag_list)
+
+        article_item["title"] = title
+        article_item["publish_time"] = publish_time
+        article_item["content"] = content
+        article_item["tags"] = tags
+        article_item["url"] = response.url
+        if response.meta.get("front_image_url", ""):
+            article_item["front_img_url"] = [response.meta.get("front_image_url", "")]
+        else:
+            article_item["front_img_url"] = []
+
         match_re=re.match(".*?(\d+)", response.url)
         if match_re:
             post_id = match_re.group(1)
 
             yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)),
-                          callback=self.parse_ajax_data())
+                          meta={"article_item": article_item}, callback=self.parse_ajax_data())
 
             # 此处代码换成异步的
             # html = requests.get(parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)))
@@ -69,4 +85,12 @@ class CnblogsSpider(scrapy.Spider):
         like_nums =j_data["DiggCount"]  # 点赞数
         view_nums = j_data["TotalView"]  # 阅读数
         comment_nums = j_data["CommentCount"]  # 评论数
+
+        article_item = response.meta.get("article_item")
+        article_item["like_nums"] = like_nums
+        article_item["view_nums"] = view_nums
+        article_item["comment_nums"] = comment_nums
+        article_item["url_id"] = common.get_md5(article_item["url"])
+
+        yield article_item
 
