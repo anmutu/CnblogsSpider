@@ -40,9 +40,11 @@ class CnblogsSpider(scrapy.Spider):
         """
         title = response.css('#news_title a::text').extract_first("")
         publish_time = response.css('#news_info .time::text').extract_first("")
+        match_re = re.match(".*?(\d+.*)", publish_time)
+        if match_re:
+            publish_time = match_re.group(1)
         content = response.css('#news_content').extract("")[0]
         tag_list = response.css('.news_tags a::text').extract()
-
         match_re=re.match(".*?(\d+)", response.url)
         if match_re:
             post_id = match_re.group(1)
