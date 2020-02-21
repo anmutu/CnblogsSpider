@@ -9,6 +9,8 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import os
+
 BOT_NAME = 'CnblogsSpider'
 
 SPIDER_MODULES = ['CnblogsSpider.spiders']
@@ -66,6 +68,7 @@ ROBOTSTXT_OBEY = False  # 不遵循robots协议
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'CnblogsSpider.pipelines.CnblogsspiderPipeline': 300,
+   'scrapy.pipelines.images.ImagesPipeline': 1
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -88,3 +91,8 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+
+# l图片存储位置设置
+project_dir = os.path.abspath(os.path.dirname(__file__))
+IMAGES_STORE = os.path.join(project_dir, 'images')
