@@ -10,7 +10,6 @@ from CnblogsSpider.items import CnblogsspiderItem
 from CnblogsSpider.util import common
 
 
-
 class CnblogsSpider(scrapy.Spider):
     name = 'cnblogs'
     allowed_domains = ['www.cnblogs.com/news/']
