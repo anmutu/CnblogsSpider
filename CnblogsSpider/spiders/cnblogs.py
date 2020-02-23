@@ -76,7 +76,7 @@ class CnblogsSpider(scrapy.Spider):
         """
         详情里有几个数据是ajax请求得到的，不是服务器里的数据，这块也优化成异步取数据
         """
-        j_data = json.load(response.text)
+        j_data = json.loads(response.text)
         like_nums =j_data["DiggCount"]  # 点赞数
         view_nums = j_data["TotalView"]  # 阅读数
         comment_nums = j_data["CommentCount"]  # 评论数
