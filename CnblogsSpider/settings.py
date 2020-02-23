@@ -64,13 +64,14 @@ ROBOTSTXT_OBEY = False  # 不遵循robots协议
 #    'scrapy.extensions.telnet.TelnetConsole': None,
 #}
 
-# Configure item pipelines 
+# Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'CnblogsSpider.pipelines.CnblogsspiderPipeline': 300,
    'scrapy.pipelines.images.ImagesPipeline': 1,
    'CnblogsSpider.pipelines.JsonWithEncodingPipeline': 2,  # 自定义的导出
-   'CnblogsSpider.pipelines.JsonExporterPipleline': 3,  # 官方的导出
+   'CnblogsSpider.pipelines.JsonExporterPipeline': 3,  # 官方的导出
+   'CnblogsSpider.pipelines.MysqlPipeline': 4,  # 将数据同步写入到mysql
+   'CnblogsSpider.pipelines.CnblogsspiderPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

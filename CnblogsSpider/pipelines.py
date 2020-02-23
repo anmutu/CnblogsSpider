@@ -7,10 +7,12 @@
 
 import codecs
 import json
-import datetime
 
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exporters import JsonItemExporter
+import MySQLdb
+import  MySQLdb.cursors
+
 
 
 class CnblogsspiderPipeline(object):
@@ -18,12 +20,13 @@ class CnblogsspiderPipeline(object):
         return item
 
 
-class ArticleImagePipleline(ImagesPipeline):
+class ArticleImagePipeline(ImagesPipeline):
     """
     得到图片的pipline
     """
     def item_completed(self, results, item, info):
         if "front_img_url" in item:
+            img_file_path = ""
             for ok, value in results:
                 img_file_path = value["path"]
             item["front_img_path"] = img_file_path
@@ -46,7 +49,7 @@ class JsonWithEncodingPipeline(object):
         self.file.close()
 
 
-class JsonExporterPipleline(object):
+class JsonExporterPipeline(object):
     """
     官方scrapy提供的导出的方法 from scrapy.exporters
     """
@@ -62,3 +65,46 @@ class JsonExporterPipleline(object):
     def process_item(self, item, spider):
         self.exporter.export_item(item)
         return item
+
+
+class MysqlPipeline(object):
+    """
+        采用同步机制写入mysql (这里是同步入库，对于要求较高的来说并不是很友好)
+    """
+    def __init__(self):
+        self.conn = MySQLdb.connect('192.168.0.106', 'root', 'root', 'article_spider', charset="utf8", use_unicode=True)
+        self.cursor = self.conn.cursor()
+
+    def process_item(self, item, spider):
+        insert_sql = """
+          insert into article_spider 
+          values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        parms = list()
+        parms.append(item.get("title", ""))
+        parms.append(item.get("url", ""))
+        parms.append(item.get("url_id", ""))
+        parms.append(item.get("publish_time", ""))
+        parms.append(item.get("front_img_path", ""))
+        parms.append(item.get("front_img_url", ""))
+        parms.append(item.get("like_nums", 0))
+        parms.append(item.get("view_nums", 0))
+        parms.append(item.get("comment_nums", 0))
+        parms.append(item.get("tags", ""))
+        parms.append(item.get("content", "1970-07-01"))
+
+        # parms.append(item["publish_time"])
+        # parms.append(item["front_img_path"])
+        # parms.append(item["front_img_url"])
+        # parms.append(item["like_nums"])
+        # parms.append(item["view_nums"])
+        # parms.append(item["comment_nums"])
+        # parms.append(item["tags"])
+        # parms.append(item["content"])
+
+        self.cursor.execute( insert_sql, tuple(parms))
+        self.conn.commit()
+        return item
+
+
+
