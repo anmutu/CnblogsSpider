@@ -75,7 +75,7 @@ class MysqlPipeline(object):
           (这里是同步入库，对于要求较高的来说并不是很友好)
     """
     def __init__(self):
-        self.conn = MySQLdb.connect('127.0.0.1', 'root', 'root', 'article_spider', charset="utf8", use_unicode=True)
+        self.conn = MySQLdb.connect('127.0.0.1', 'root', 'root', 'cnblogs_spider', charset="utf8", use_unicode=True)
         self.cursor = self.conn.cursor()
 
     def process_item(self, item, spider):
