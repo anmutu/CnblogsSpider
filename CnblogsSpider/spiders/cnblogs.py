@@ -43,26 +43,26 @@ class CnblogsSpider(scrapy.Spider):
         match_re = re.match(".*?(\d+.*)", publish_time)
         if match_re:
             publish_time = match_re.group(1)
-        content = response.css('#news_content').extract("")[0]
+        content = response.css('#news_content').extract()[0]
         tag_list = response.css('.news_tags a::text').extract()
         tags = ",".join(tag_list)
 
-        article_item["title"] = title
-        article_item["publish_time"] = publish_time
-        article_item["content"] = content
-        article_item["tags"] = tags
-        article_item["url"] = response.url
-        if response.meta.get("front_image_url", ""):
-            article_item["front_img_url"] = [response.meta.get("front_image_url", "")]
-        else:
-            article_item["front_img_url"] = []
+        # article_item["title"] = title
+        # article_item["publish_time"] = publish_time
+        # article_item["content"] = content
+        # article_item["tags"] = tags
+        # article_item["url"] = response.url
+        # if response.meta.get("front_image_url", ""):
+        #     article_item["front_img_url"] = [response.meta.get("front_image_url", "")]
+        # else:
+        #     article_item["front_img_url"] = []
 
         match_re=re.match(".*?(\d+)", response.url)
         if match_re:
             post_id = match_re.group(1)
 
             yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)),
-                          meta={"article_item": article_item}, callback=self.parse_ajax_data(), dont_filter=True)
+                          meta={"article_item": article_item}, callback=self.parse_ajax_data, dont_filter=True)
 
             # 此处代码换成异步的
             # html = requests.get(parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)))
@@ -72,11 +72,11 @@ class CnblogsSpider(scrapy.Spider):
             # comment_nums = j_data["CommentCount"]  # 评论数
         pass
 
-    def parse_ajax_data(self, request):
+    def parse_ajax_data(self, response):
         """
         详情里有几个数据是ajax请求得到的，不是服务器里的数据，这块也优化成异步取数据
         """
-        j_data = json.load(request.text)
+        j_data = json.load(response.text)
         like_nums =j_data["DiggCount"]  # 点赞数
         view_nums = j_data["TotalView"]  # 阅读数
         comment_nums = j_data["CommentCount"]  # 评论数
