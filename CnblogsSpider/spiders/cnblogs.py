@@ -25,7 +25,7 @@ class CnblogsSpider(scrapy.Spider):
             image_url = post_node.css('.post_item_summary a img::attr(src)').extract_first("")
             post_url = post_node.css('h3 a::attr(href)').extract_first("")
             yield Request(url=parse.urljoin(response.url, post_url), meta={"front_image_url": image_url},
-                          callback=self.parse_detail)
+                          callback=self.parse_detail, dont_filter=True)
 
         # 提取出下一页并交给scrapy去做处理
         # next_text = response.css('div.pager a:last-child::text').extract_first("")
@@ -62,7 +62,7 @@ class CnblogsSpider(scrapy.Spider):
             post_id = match_re.group(1)
 
             yield Request(url=parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)),
-                          meta={"article_item": article_item}, callback=self.parse_ajax_data())
+                          meta={"article_item": article_item}, callback=self.parse_ajax_data(), dont_filter=True)
 
             # 此处代码换成异步的
             # html = requests.get(parse.urljoin(response.url, "/NewsAjax/GetAjaxNewsInfo?contentId={}".format(post_id)))
