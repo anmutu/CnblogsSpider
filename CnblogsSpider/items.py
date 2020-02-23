@@ -9,8 +9,6 @@ import scrapy
 
 
 class CnblogsspiderItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
     title = scrapy.Field()
     publish_time = scrapy.Field()
     url = scrapy.Field()
@@ -21,5 +19,5 @@ class CnblogsspiderItem(scrapy.Item):
     view_nums = scrapy.Field()
     comment_nums = scrapy.Field()
     tags = scrapy.Field()
-    contents = scrapy.Field()
+    content = scrapy.Field()
     pass

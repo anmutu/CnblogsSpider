@@ -39,7 +39,7 @@ class JsonWithEncodingPipeline(object):
     自定义Json文件的导出(自己写的)
     """
     def __init__(self):
-        now = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+        now = time.strftime('%Y%m%d', time.localtime(time.time()))
         self.file = codecs.open('{}{}.json'.format(now, "article"), 'w', encoding="utf-8")
 
     def process_item(self, item, spider):
@@ -56,7 +56,7 @@ class JsonExporterPipeline(object):
     官方scrapy提供的导出的方法 from scrapy.exporters
     """
     def __init__(self):
-        now = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+        now = time.strftime('%Y%m%d', time.localtime(time.time()))
         self.file = open('{}{}.json'.format(now, "article_scrapy"), 'wb')
         self.exporter = JsonItemExporter(self.file, encoding="utf-8", ensure_ascii=False)
         self.exporter.start_exporting()
@@ -80,24 +80,24 @@ class MysqlPipeline(object):
 
     def process_item(self, item, spider):
         insert_sql = """
-          insert into article_spider 
+          insert into article(title,publish_time,url,url_id,front_img_path,front_img_url,like_nums,view_nums,comment_nums,tags,content)
           values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         parms = list()
         parms.append(item.get("title", ""))
+        parms.append(item.get("publish_time", "1970-07-01"))
         parms.append(item.get("url", ""))
         parms.append(item.get("url_id", ""))
-        parms.append(item.get("publish_time", ""))
         parms.append(item.get("front_img_path", ""))
         parms.append(item.get("front_img_url", ""))
         parms.append(item.get("like_nums", 0))
         parms.append(item.get("view_nums", 0))
         parms.append(item.get("comment_nums", 0))
         parms.append(item.get("tags", ""))
-        parms.append(item.get("content", "1970-07-01"))
+        parms.append(item.get("content", ""))
 
-        self.cursor.execute( insert_sql, tuple(parms))
+        self.cursor.execute(insert_sql, tuple(parms))
         self.conn.commit()
         return item
 

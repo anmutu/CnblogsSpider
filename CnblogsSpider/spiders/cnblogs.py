@@ -20,7 +20,7 @@ class CnblogsSpider(scrapy.Spider):
         1.获取列表中的url且将之交给scrapy下载，然后交由detail做解析
         2.获取下一页的列表数据，将下一页的数据交给parse处理，也就是做1做的事情。
         """
-        post_nodes = response.css('#post_list  .post_item')[:1]
+        post_nodes = response.css('#post_list  .post_item')  # [:1]
         for post_node in post_nodes:
             image_url = post_node.css('.post_item_summary a img::attr(src)').extract_first("")
             post_url = post_node.css('h3 a::attr(href)').extract_first("")
@@ -28,16 +28,16 @@ class CnblogsSpider(scrapy.Spider):
                           callback=self.parse_detail, dont_filter=True)
 
         # 提取出下一页并交给scrapy去做处理
-        # next_text = response.css('div.pager a:last-child::text').extract_first("")
-        # if next_text == "Next >":
-        #     next_url = response.css('div.pager a:last-child::attr(href)').extract_first("")
-        #     yield Request(url=parse.urljoin(response.url, next_url))
+        next_text = response.css('div.pager a:last-child::text').extract_first("")
+        if next_text == "Next >":
+            next_url = response.css('div.pager a:last-child::attr(href)').extract_first("")
+            yield Request(url=parse.urljoin(response.url, next_url))
 
     def parse_detail(self, response):
         """
         获取详情信息的函数
         """
-        article_item = CnblogsspiderItem
+        article_item = CnblogsspiderItem()
         title = response.css('#news_title a::text').extract_first("")
         publish_time = response.css('#news_info .time::text').extract_first("")
         match_re = re.match(".*?(\d+.*)", publish_time)
@@ -47,15 +47,15 @@ class CnblogsSpider(scrapy.Spider):
         tag_list = response.css('.news_tags a::text').extract()
         tags = ",".join(tag_list)
 
-        # article_item["title"] = title
-        # article_item["publish_time"] = publish_time
-        # article_item["content"] = content
-        # article_item["tags"] = tags
-        # article_item["url"] = response.url
-        # if response.meta.get("front_image_url", ""):
-        #     article_item["front_img_url"] = [response.meta.get("front_image_url", "")]
-        # else:
-        #     article_item["front_img_url"] = []
+        article_item["title"] = title
+        article_item["publish_time"] = publish_time
+        article_item["content"] = content
+        article_item["tags"] = tags
+        article_item["url"] = response.url
+        if response.meta.get("front_image_url", ""):
+            article_item["front_img_url"] = [response.meta.get("front_image_url", "")]
+        else:
+            article_item["front_img_url"] = []
 
         match_re=re.match(".*?(\d+)", response.url)
         if match_re:
